@@ -1,23 +1,36 @@
 import { useState } from 'react'
 import Field from './ui/Field'
 import ImageCropper from './ImageCropper'
+import type { QRStyle } from '../types'
+
+type Shape = QRStyle['imageDotShape']
+
+const shapes: { value: Shape; label: string }[] = [
+  { value: 'dot', label: '圆点' },
+  { value: 'rounded', label: '圆角方' },
+  { value: 'square', label: '方块' }
+]
 
 type Props = {
   sourceImage: string
   dotScale: number
   imageAlpha: number
+  dotShape: Shape
   onImageChange: (dataUrl: string) => void
   onDotScaleChange: (v: number) => void
   onImageAlphaChange: (v: number) => void
+  onDotShapeChange: (v: Shape) => void
 }
 
 export default function SourceImageUploader({
   sourceImage,
   dotScale,
   imageAlpha,
+  dotShape,
   onImageChange,
   onDotScaleChange,
-  onImageAlphaChange
+  onImageAlphaChange,
+  onDotShapeChange
 }: Props) {
   const [rawImage, setRawImage] = useState('')
 
@@ -74,43 +87,75 @@ export default function SourceImageUploader({
         )}
 
         {(rawImage || sourceImage) && (
-          <div className="space-y-2 pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 w-20">码点大小</span>
-              <input
-                type="range"
-                min={0.2}
-                max={1}
-                step={0.05}
-                value={dotScale}
-                onChange={(e) => onDotScaleChange(Number(e.target.value))}
-                className="flex-1"
-              />
-              <span className="text-xs text-gray-500 w-10 text-right">
-                {Math.round(dotScale * 100)}%
-              </span>
+          <div className="space-y-3 pt-3 border-t border-gray-100">
+            <div className="flex items-center gap-1.5">
+              {shapes.map((s) => (
+                <button
+                  key={s.value}
+                  onClick={() => onDotShapeChange(s.value)}
+                  className={`flex-1 px-2 py-1.5 text-xs rounded-md border transition ${
+                    dotShape === s.value
+                      ? 'border-violet-500 bg-violet-50 text-violet-700'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 w-20">图片浓度</span>
-              <input
-                type="range"
-                min={0.3}
-                max={1}
-                step={0.05}
-                value={imageAlpha}
-                onChange={(e) => onImageAlphaChange(Number(e.target.value))}
-                className="flex-1"
-              />
-              <span className="text-xs text-gray-500 w-10 text-right">
-                {Math.round(imageAlpha * 100)}%
-              </span>
-            </div>
-            <p className="text-xs text-gray-400">
-              码点越小图片越清晰，但过小可能影响扫码。建议 40%–60%。
+            <Slider
+              label="码点大小"
+              value={dotScale}
+              min={0.3}
+              max={1}
+              onChange={onDotScaleChange}
+            />
+            <Slider
+              label="图片浓度"
+              value={imageAlpha}
+              min={0.3}
+              max={1}
+              onChange={onImageAlphaChange}
+            />
+            <p className="text-xs text-gray-400 leading-relaxed">
+              码点越小图片越清晰，过小会影响扫码。
+              图片浓度越低、QR 越清晰。
             </p>
           </div>
         )}
       </div>
     </Field>
+  )
+}
+
+function Slider({
+  label,
+  value,
+  min,
+  max,
+  onChange
+}: {
+  label: string
+  value: number
+  min: number
+  max: number
+  onChange: (v: number) => void
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-gray-500 w-20">{label}</span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={0.05}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="flex-1"
+      />
+      <span className="text-xs text-gray-500 w-10 text-right">
+        {Math.round(value * 100)}%
+      </span>
+    </div>
   )
 }

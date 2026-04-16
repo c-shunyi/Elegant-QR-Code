@@ -22,8 +22,9 @@ const initialStyle: QRStyle = {
   cornerDotType: 'dot',
   logoSize: 0.3,
   margin: 8,
-  imageDotScale: 0.55,
-  imageAlpha: 1
+  imageDotScale: 0.6,
+  imageAlpha: 0.8,
+  imageDotShape: 'dot'
 }
 
 export default function App() {
@@ -60,9 +61,11 @@ export default function App() {
               sourceImage={style.sourceImage}
               dotScale={style.imageDotScale}
               imageAlpha={style.imageAlpha}
+              dotShape={style.imageDotShape}
               onImageChange={(v) => patch({ sourceImage: v })}
               onDotScaleChange={(v) => patch({ imageDotScale: v })}
               onImageAlphaChange={(v) => patch({ imageAlpha: v })}
+              onDotShapeChange={(v) => patch({ imageDotShape: v })}
             />
             {!isImageMode && (
               <>

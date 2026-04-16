@@ -32,4 +32,5 @@ export type QRStyle = {
   margin: number
   imageDotScale: number
   imageAlpha: number
+  imageDotShape: 'dot' | 'square' | 'rounded'
 }

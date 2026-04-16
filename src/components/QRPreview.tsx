@@ -68,7 +68,7 @@ function ImageQRView({ style }: { style: QRStyle }) {
       dotScale: style.imageDotScale,
       imageAlpha: style.imageAlpha,
       darkColor: style.dotColor,
-      lightColor: '#ffffff'
+      shape: style.imageDotShape
     }).then((c) => {
       if (cancelled || !canvasRef.current) return
       const dest = canvasRef.current
@@ -90,7 +90,7 @@ function ImageQRView({ style }: { style: QRStyle }) {
       dotScale: style.imageDotScale,
       imageAlpha: style.imageAlpha,
       darkColor: style.dotColor,
-      lightColor: '#ffffff'
+      shape: style.imageDotShape
     })
     const blob = await canvasToBlob(canvas)
     downloadBlob(blob, 'elegant-qr.png')
