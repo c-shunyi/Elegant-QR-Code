@@ -5,7 +5,9 @@ type Props = {
   onChange: (dataUrl: string) => void
 }
 
+// Logo 上传组件：提供文件选择按钮和预览 / 移除能力，负责把图片读成 DataURL 交给父组件
 export default function LogoUploader({ logo, onChange }: Props) {
+  // 处理文件上传：用 FileReader 把所选图片转为 DataURL 再通过 onChange 向上传递
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return

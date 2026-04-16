@@ -4,6 +4,7 @@ type Props = {
   options: readonly string[]
 }
 
+// 受控下拉选择组件：根据 options 数组渲染原生 <select>，受控绑定 value / onChange
 export default function Select({ value, onChange, options }: Props) {
   return (
     <select

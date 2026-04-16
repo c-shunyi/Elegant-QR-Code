@@ -2,6 +2,7 @@ import Field from './ui/Field'
 
 type Props = { value: string; onChange: (v: string) => void }
 
+// URL / 文本输入框：接收并透传用户要编码到二维码里的链接或纯文本
 export default function UrlInput({ value, onChange }: Props) {
   return (
     <Field label="链接 / 文本">

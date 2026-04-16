@@ -18,7 +18,9 @@ type Props = {
   onChange: (patch: Partial<QRStyle>) => void
 }
 
+// 样式控制面板：聚合颜色、渐变开关、透明背景、点 / 角框 / 角点样式、Logo 尺寸和边距等所有调节项
 export default function StyleControls({ style, onChange }: Props) {
+  const hasBg = Boolean(style.bgImage)
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 gap-4">
@@ -51,16 +53,18 @@ export default function StyleControls({ style, onChange }: Props) {
           <ColorInput
             value={style.bgColor}
             onChange={(v) => onChange({ bgColor: v })}
-            disabled={style.transparentBg}
+            disabled={style.transparentBg || hasBg}
           />
         </Field>
         <label className="flex items-end gap-2 text-sm text-gray-700 pb-2.5">
           <input
             type="checkbox"
             checked={style.transparentBg}
+            disabled={hasBg}
             onChange={(e) => onChange({ transparentBg: e.target.checked })}
           />
           透明背景
+          {hasBg && <span className="text-xs text-gray-400">(已用图片)</span>}
         </label>
       </div>
 

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import QRCodeStyling, { type Options } from 'qr-code-styling'
 import type { QRStyle } from '../types'
 
+// 根据用户自定义样式构建 qr-code-styling 的配置对象，封装颜色 / 渐变 / 形状 / Logo 等所有参数的映射
 function buildOptions(style: QRStyle, size: number): Options {
-  const transparent = style.transparentBg
+  const transparent = style.transparentBg || Boolean(style.bgImage)
   return {
     width: size,
     height: size,
@@ -47,6 +48,7 @@ function buildOptions(style: QRStyle, size: number): Options {
   }
 }
 
+// 自定义 Hook：在传入容器中挂载 QRCodeStyling 实例，首次挂载时 append，后续样式变化时仅调用 update 复用实例
 export function useQRCode(
   containerRef: RefObject<HTMLDivElement | null>,
   style: QRStyle,

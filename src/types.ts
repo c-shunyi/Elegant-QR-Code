@@ -19,7 +19,7 @@ export type Preset = {
 export type QRStyle = {
   url: string
   logo: string
-  sourceImage: string
+  bgImage: string
   dotColor: string
   gradientColor: string
   useGradient: boolean
@@ -30,7 +30,4 @@ export type QRStyle = {
   cornerDotType: CornerDotType
   logoSize: number
   margin: number
-  imageDotScale: number
-  imageAlpha: number
-  imageDotShape: 'dot' | 'square' | 'rounded'
 }

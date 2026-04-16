@@ -1,3 +1,4 @@
+// 页面顶部组件：渲染带渐变文字的应用标题和副标语，无交互逻辑
 export default function Header() {
   return (
     <header className="mb-8 text-center">

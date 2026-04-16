@@ -1,3 +1,4 @@
+// 将任意图片 URL / DataURL 异步加载为 HTMLImageElement，启用跨域以便后续绘制到 canvas 并能导出
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image()
@@ -8,6 +9,7 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
+// 将二维码 Blob 叠加到背景图上，生成一张最终的 PNG Blob；用于带背景图导出场景
 export async function composeWithBackground(
   qrBlob: Blob,
   bgImageDataUrl: string,
@@ -36,6 +38,7 @@ export async function composeWithBackground(
   }
 }
 
+// 触发浏览器下载：把 Blob 包装为临时 URL 并模拟点击 a 标签，结束后立即释放对象 URL 避免内存泄漏
 export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')

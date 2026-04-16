@@ -4,6 +4,7 @@ import type { Preset } from '../types'
 
 type Props = { onPick: (p: Preset) => void }
 
+// 预设风格选择器：把 presets 列表渲染成胶囊按钮，点击某一项通过 onPick 回调父组件应用该预设
 export default function PresetPicker({ onPick }: Props) {
   return (
     <Field label="预设风格">

@@ -7,6 +7,7 @@ type Props = {
   onCropChange: (dataUrl: string) => void
 }
 
+// 图片裁剪器组件：支持缩放 + 拖拽平移的正方形裁剪框，实时把裁剪结果以 DataURL 形式回调给父组件
 export default function ImageCropper({
   src,
   size = 240,
@@ -31,6 +32,7 @@ export default function ImageCropper({
   const left = (size - displayW) / 2 + pan.x
   const top = (size - displayH) / 2 + pan.y
 
+  // 约束平移量：保证图片始终至少覆盖裁剪框，不让用户拖出露出空白
   const clampPan = useCallback(
     (p: { x: number; y: number }) => {
       const maxX = Math.max(0, (displayW - size) / 2)
@@ -47,6 +49,7 @@ export default function ImageCropper({
     setPan((p) => clampPan(p))
   }, [clampPan])
 
+  // 图片加载完成回调：记录原始尺寸，计算出 "cover" 模式下的初始适配比例，并重置缩放和平移
   const handleImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
     const w = img.naturalWidth
@@ -57,11 +60,13 @@ export default function ImageCropper({
     setPan({ x: 0, y: 0 })
   }
 
+  // 按下指针：捕获指针事件并记录起始坐标与当前平移量，作为后续拖拽的参考点
   const onPointerDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     dragRef.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y }
     setDragging(true)
   }
+  // 指针移动：根据与起点的位移更新平移量，并交给 clampPan 做边界约束
   const onPointerMove = (e: React.PointerEvent) => {
     if (!dragRef.current) return
     setPan(
@@ -71,6 +76,7 @@ export default function ImageCropper({
       })
     )
   }
+  // 指针抬起 / 取消：清空拖拽状态
   const onPointerUp = () => {
     dragRef.current = null
     setDragging(false)

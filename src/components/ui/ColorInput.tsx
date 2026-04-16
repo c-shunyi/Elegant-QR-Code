@@ -4,6 +4,7 @@ type Props = {
   disabled?: boolean
 }
 
+// 颜色输入控件：并列一个 color picker 和一个十六进制文本框，两者绑定同一个 value，支持 disabled 降低透明度
 export default function ColorInput({ value, onChange, disabled }: Props) {
   return (
     <div
