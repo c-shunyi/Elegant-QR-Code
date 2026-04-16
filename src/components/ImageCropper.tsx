@@ -26,6 +26,16 @@ export default function ImageCropper({
   } | null>(null)
   const [dragging, setDragging] = useState(false)
 
+  // 把最新回调放进 ref，让生成裁剪图的副作用不需要把 onCropChange 放进依赖数组，
+  // 否则父组件每次渲染传进来的新函数引用都会触发重新裁剪 → 无限循环导致预览闪烁
+  const onCropChangeRef = useRef(onCropChange)
+  useEffect(() => {
+    onCropChangeRef.current = onCropChange
+  })
+
+  // 记录上一次生成的 dataURL，做一次去重保险：即使效应被意外触发，只要输出没变就不会向上抛新值
+  const lastCropRef = useRef<string>('')
+
   const effectiveScale = fitScale * zoom
   const displayW = natural.w * effectiveScale
   const displayH = natural.h * effectiveScale
@@ -100,23 +110,13 @@ export default function ImageCropper({
         displayW * ratio,
         displayH * ratio
       )
-      onCropChange(canvas.toDataURL('image/png'))
+      const url = canvas.toDataURL('image/png')
+      if (url === lastCropRef.current) return
+      lastCropRef.current = url
+      onCropChangeRef.current(url)
     }
     img.src = src
-  }, [
-    src,
-    zoom,
-    pan,
-    fitScale,
-    natural,
-    size,
-    outputSize,
-    left,
-    top,
-    displayW,
-    displayH,
-    onCropChange
-  ])
+  }, [src, zoom, pan, fitScale, natural, size, outputSize, left, top, displayW, displayH])
 
   return (
     <div>
