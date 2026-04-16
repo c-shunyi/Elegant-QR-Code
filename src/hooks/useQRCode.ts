@@ -4,7 +4,9 @@ import type { QRStyle } from '../types'
 
 // 根据用户自定义样式构建 qr-code-styling 的配置对象，封装颜色 / 渐变 / 形状 / Logo 等所有参数的映射
 function buildOptions(style: QRStyle, size: number): Options {
-  const transparent = style.transparentBg || Boolean(style.bgImage)
+  // 下列任一情况都强制 QR 透明：显式透明 / 带背景图 / 透明度 < 1（后两种由 Canvas/SVG 合成阶段再铺底）
+  const transparent =
+    style.transparentBg || Boolean(style.bgImage) || style.qrOpacity < 1
   return {
     width: size,
     height: size,

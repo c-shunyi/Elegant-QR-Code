@@ -9,24 +9,40 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   })
 }
 
-// 将二维码 Blob 叠加到背景图上，生成一张最终的 PNG Blob；用于带背景图导出场景
-export async function composeWithBackground(
+type ComposeOptions = {
+  bgImage?: string
+  bgColor?: string
+  opacity?: number
+  size?: number
+}
+
+// 将二维码 Blob 合成到指定背景上（图片 / 纯色 / 透明），并以指定透明度绘制 QR，输出 PNG Blob
+export async function composeQR(
   qrBlob: Blob,
-  bgImageDataUrl: string,
-  size = 640
+  options: ComposeOptions = {}
 ): Promise<Blob> {
+  const { bgImage, bgColor, opacity = 1, size = 640 } = options
   const qrUrl = URL.createObjectURL(qrBlob)
   try {
-    const [qrImg, bgImg] = await Promise.all([
-      loadImage(qrUrl),
-      loadImage(bgImageDataUrl)
-    ])
+    const qrImg = await loadImage(qrUrl)
     const canvas = document.createElement('canvas')
     canvas.width = size
     canvas.height = size
-    const ctx = canvas.getContext('2d')!
-    ctx.drawImage(bgImg, 0, 0, size, size)
+    const ctx = canvas.getContext('2d')
+    if (!ctx) throw new Error('no 2d context')
+
+    if (bgImage) {
+      const bgImg = await loadImage(bgImage)
+      ctx.drawImage(bgImg, 0, 0, size, size)
+    } else if (bgColor && bgColor !== 'transparent') {
+      ctx.fillStyle = bgColor
+      ctx.fillRect(0, 0, size, size)
+    }
+
+    ctx.globalAlpha = opacity
     ctx.drawImage(qrImg, 0, 0, size, size)
+    ctx.globalAlpha = 1
+
     return await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
         (b) => (b ? resolve(b) : reject(new Error('toBlob failed'))),

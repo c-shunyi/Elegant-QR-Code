@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import type { FileExtension } from 'qr-code-styling'
 import { useQRCode } from '../hooks/useQRCode'
-import { composeWithBackground, downloadBlob } from '../lib/compose'
+import { composeQR, downloadBlob } from '../lib/compose'
 import type { QRStyle } from '../types'
 
 type Props = { style: QRStyle }
@@ -9,30 +9,49 @@ type Props = { style: QRStyle }
 const PREVIEW_SIZE = 320
 const EXPORT_SIZE = 720
 
-// 二维码预览：始终用 qr-code-styling 渲染 QR；若设置了 bgImage，就把图片作为容器背景、QR 以透明底叠加其上
+// 二维码预览：始终用 qr-code-styling 渲染 QR；若设置了 bgImage，就把图片作为容器背景、QR 以透明底叠加其上；
+// qrOpacity 通过预览层 CSS opacity + 下载时 Canvas 合成 / SVG opacity 属性双路径实现
 export default function QRPreview({ style }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const qrRef = useQRCode(containerRef, style, PREVIEW_SIZE)
 
-  // 下载处理：普通场景走库内置 download；背景图场景下把 QR 转 Blob 再用 Canvas 合成图片再导出
+  // 是否需要走自定义合成路径：存在背景图 或 透明度 < 1（纯图导出都能直接用库内置下载）
+  const needCompose = Boolean(style.bgImage) || style.qrOpacity < 1
+
   const handleDownload = async (ext: FileExtension) => {
     const qr = qrRef.current
     if (!qr) return
 
-    if (style.bgImage && ext === 'png') {
+    if (ext === 'png' && needCompose) {
       const blob = (await qr.getRawData('png')) as Blob | null
       if (!blob) return
-      const composed = await composeWithBackground(
-        blob,
-        style.bgImage,
-        EXPORT_SIZE
-      )
+      const composed = await composeQR(blob, {
+        bgImage: style.bgImage || undefined,
+        bgColor: style.transparentBg ? undefined : style.bgColor,
+        opacity: style.qrOpacity,
+        size: EXPORT_SIZE
+      })
       downloadBlob(composed, 'elegant-qr.png')
       return
     }
 
-    if (style.bgImage && ext === 'svg') {
+    if (ext === 'svg' && style.bgImage) {
       alert('SVG 导出暂不支持背景图片合成，请使用 PNG 下载。')
+      return
+    }
+
+    if (ext === 'svg' && style.qrOpacity < 1) {
+      const blob = (await qr.getRawData('svg')) as Blob | null
+      if (!blob) return
+      const text = await blob.text()
+      const patched = text.replace(
+        /<svg\b/,
+        `<svg opacity="${style.qrOpacity}"`
+      )
+      downloadBlob(
+        new Blob([patched], { type: 'image/svg+xml' }),
+        'elegant-qr.svg'
+      )
       return
     }
 
@@ -58,7 +77,11 @@ export default function QRPreview({ style }: Props) {
             : '0 0, 0 8px, 8px -8px, -8px 0px'
         }}
       >
-        <div ref={containerRef} className="absolute inset-0" />
+        <div
+          ref={containerRef}
+          className="absolute inset-0"
+          style={{ opacity: style.qrOpacity }}
+        />
       </div>
       <div className="mt-6 w-full grid grid-cols-2 gap-3">
         <button

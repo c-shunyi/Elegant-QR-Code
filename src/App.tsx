@@ -21,7 +21,8 @@ const initialStyle: QRStyle = {
   cornerSquareType: 'extra-rounded',
   cornerDotType: 'dot',
   logoSize: 0.3,
-  margin: 8
+  margin: 8,
+  qrOpacity: 1
 }
 
 // 根组件：组装页面布局，维护全局二维码样式状态，并把状态分发给各子组件

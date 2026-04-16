@@ -118,6 +118,18 @@ export default function StyleControls({ style, onChange }: Props) {
           />
         </Field>
       </div>
+
+      <Field label={`二维码透明度 ${Math.round(style.qrOpacity * 100)}%`}>
+        <input
+          type="range"
+          min={0.3}
+          max={1}
+          step={0.05}
+          value={style.qrOpacity}
+          onChange={(e) => onChange({ qrOpacity: Number(e.target.value) })}
+          className="w-full"
+        />
+      </Field>
     </div>
   )
 }

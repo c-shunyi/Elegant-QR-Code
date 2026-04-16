@@ -30,4 +30,5 @@ export type QRStyle = {
   cornerDotType: CornerDotType
   logoSize: number
   margin: number
+  qrOpacity: number
 }
